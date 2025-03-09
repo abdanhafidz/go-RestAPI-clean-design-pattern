@@ -26,14 +26,6 @@ type AccountDetails struct {
 	DeletedAt   time.Time `json:"deleted_at"`
 }
 
-type EmailVerification struct {
-	Id        int       `gorm:"primaryKey" json:"id"`
-	AccountId int       `json:"account_id"`
-	UUID      uuid.UUID `gorm:"type:uuid" json:"uuid" `
-	CreatedAt time.Time `json:"created_at"`
-	ExpiredAt time.Time `json:"expired_at"`
-}
-
 // Gorm table name settings
 func (Account) TableName() string        { return "account" }
 func (AccountDetails) TableName() string { return "account_details" }
