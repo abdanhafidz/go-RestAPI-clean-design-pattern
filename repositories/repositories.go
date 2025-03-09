@@ -1,6 +1,7 @@
 package repositories
 
 import (
+	"go-dp.abdanhafidz.com/config"
 	"gorm.io/gorm"
 )
 
@@ -36,55 +37,77 @@ type Repository[TConstructor any, TResult any] struct {
 }
 
 func Construct[TConstructor any, TResult any](constructor ...TConstructor) *Repository[TConstructor, TResult] {
-	if len(constructor) == 0 {
+	if len(constructor) == 1 {
 		return &Repository[TConstructor, TResult]{
-			Transaction: db.Begin(),
+			Constructor: constructor[0],
+			Transaction: config.DB,
 		}
 	}
 	return &Repository[TConstructor, TResult]{
 		Constructor: constructor[0],
-		Transaction: db.Begin(),
+		Transaction: config.DB.Begin(),
 	}
 }
-func (repo *Repository[T1, T2]) Transactions(transactions ...func(*Repository[T1, T2])) {
-	i := 1
+func (repo *Repository[T1, T2]) Transactions(transactions ...func(*Repository[T1, T2]) *gorm.DB) {
 	for _, tx := range transactions {
-		tx(repo)
-		repo.RowsError = repo.Transaction.Error
+		repo.Transaction = tx(repo)
 		if repo.RowsError != nil {
-			repo.Transaction.Rollback()
 			return
-		} else {
-			repo.Transaction.SavePoint("Save Point : " + string(i))
-			repo.Transaction.Commit()
 		}
 	}
 }
-func WhereGivenConstructor[T1 any, T2 any](repo *Repository[T1, T2]) {
-	repo.Transaction.Where(&repo.Constructor)
+func WhereGivenConstructor[T1 any, T2 any](repo *Repository[T1, T2]) *gorm.DB {
+	tx := repo.Transaction.Where(&repo.Constructor)
+	repo.RowsCount = int(tx.RowsAffected)
+	repo.NoRecord = repo.RowsCount == 0
+	repo.RowsError = tx.Error
+	return tx
 }
-func Find[T1 any, T2 any](repo *Repository[T1, T2]) {
-	repo.Transaction.Find(&repo.Result)
+func Find[T1 any, T2 any](repo *Repository[T1, T2]) *gorm.DB {
+	tx := repo.Transaction.Find(&repo.Result)
+	repo.RowsCount = int(tx.RowsAffected)
+	repo.NoRecord = repo.RowsCount == 0
+	repo.RowsError = tx.Error
+	return tx
 }
 
-func FinddAllPaginate[T1 any, T2 any](repo *Repository[T1, T2]) {
-	repo.Transaction.Limit(repo.Pagination.Limit).Offset(repo.Pagination.Offset).Find(&repo.Result)
+func FinddAllPaginate[T1 any, T2 any](repo *Repository[T1, T2]) *gorm.DB {
+	tx := repo.Transaction.Limit(repo.Pagination.Limit).Offset(repo.Pagination.Offset).Find(&repo.Result)
+	repo.RowsCount = int(tx.RowsAffected)
+	repo.NoRecord = repo.RowsCount == 0
+	repo.RowsError = tx.Error
+	return tx
 }
 
-func Create[T1 any](repo *Repository[T1, T1]) {
-	repo.Transaction.Create(&repo.Constructor)
+func Create[T1 any](repo *Repository[T1, T1]) *gorm.DB {
+	tx := repo.Transaction.Create(&repo.Constructor)
+	repo.RowsCount = int(tx.RowsAffected)
+	repo.NoRecord = repo.RowsCount == 0
+	repo.RowsError = tx.Error
 	repo.Result = repo.Constructor
+	return tx
 }
 
-func Update[T1 any](repo *Repository[T1, T1]) {
-	repo.Transaction.Save(&repo.Constructor)
-	repo.Result = repo.Constructor
+func Update[T1 any](repo *Repository[T1, T1]) *gorm.DB {
+	tx := repo.Transaction.Save(&repo.Constructor)
+	repo.RowsCount = int(tx.RowsAffected)
+	repo.NoRecord = repo.RowsCount == 0
+	repo.RowsError = tx.Error
+	return tx
 }
 
-func Delete[T1 any](repo *Repository[T1, T1]) {
-	repo.Transaction.Delete(&repo.Constructor)
+func Delete[T1 any](repo *Repository[T1, T1]) *gorm.DB {
+	tx := repo.Transaction.Delete(&repo.Constructor)
+	repo.RowsCount = int(tx.RowsAffected)
+	repo.NoRecord = repo.RowsCount == 0
+	repo.RowsError = tx.Error
+	return tx
 }
 
-func CustomQuery[T1 any, T2 any](repo *Repository[T1, T2]) {
-	repo.Transaction.Raw(repo.CustomQuery.SQL, repo.CustomQuery.Values).Scan(&repo.Result)
+func CustomQuery[T1 any, T2 any](repo *Repository[T1, T2]) *gorm.DB {
+	tx := repo.Transaction.Raw(repo.CustomQuery.SQL, repo.CustomQuery.Values).Scan(&repo.Result)
+	repo.RowsCount = int(tx.RowsAffected)
+	repo.NoRecord = repo.RowsCount == 0
+	repo.RowsError = tx.Error
+	return tx
 }

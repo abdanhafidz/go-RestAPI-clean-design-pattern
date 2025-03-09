@@ -14,15 +14,15 @@ RUN go mod download
 COPY . .
 
 # Buat file .env dengan variabel environment yang dibutuhkan
-RUN echo "DB_HOST=aws-0-ap-southeast-1.pooler.supabase.com" >> .env && \
-    echo "DB_USER=postgres.chbzgcdzhplyetsizwui" >> .env && \
-    echo "DB_PASSWORD=QuzuuAPIDEV2025" >> .env && \
-    echo "DB_PORT=5432" >> .env && \
-    echo "DB_NAME=postgres" >> .env && \
-    echo "HOST_ADDRESS = 0.0.0.0" >> .env && \
-    echo "HOST_PORT = 7860" >> .env && \
-    echo "SALT=@quzuuAp12025" >> .env
-
+RUN echo "DB_HOST={your env}" >> .env && \
+    echo "DB_USER={your env}" >> .env && \
+    echo "DB_PASSWORD={your env}" >> .env && \
+    echo "DB_PORT={your env}" >> .env && \
+    echo "DB_NAME={your env}" >> .env && \
+    echo "HOST_ADDRESS = {your env}" >> .env && \
+    echo "HOST_PORT = {your env}" >> .env && \
+    echo "SALT={your env}" >> .env && \
+    echo "LOG_PATH = {your env}" >> .env
 # Build aplikasi
 RUN go build -o main .
 

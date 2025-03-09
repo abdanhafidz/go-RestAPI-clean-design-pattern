@@ -21,7 +21,7 @@ type (
 )
 
 func Construct[TConstructor any, TResult any](constructor ...TConstructor) *Service[TConstructor, TResult] {
-	if len(constructor) == 0 {
+	if len(constructor) == 1 {
 		return &Service[TConstructor, TResult]{}
 	}
 

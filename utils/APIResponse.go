@@ -10,11 +10,15 @@ import (
 )
 
 func ResponseOK(c *gin.Context, data any) {
-	c.JSON(http.StatusOK, gin.H{"status": "success", "message": "Request Success!", "data": data})
+	c.JSON(http.StatusOK, gin.H{"message": "Request Success!", "data": data, "status": "success"})
+	return
 }
 
 func ResponseFAIL(c *gin.Context, status int, exception models.Exception) {
-	c.JSON(status, gin.H{"status": "error", "message": exception.Message, "error": exception})
+	message := exception.Message
+	exception.Message = ""
+	c.AbortWithStatusJSON(status, gin.H{"status": "error", "message": message, "error": exception})
+	return
 }
 
 func SendResponse(c *gin.Context, data services.Service[any, any]) {

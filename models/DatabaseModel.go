@@ -2,17 +2,18 @@ package models
 
 import (
 	"time"
+
+	uuid "github.com/satori/go.uuid"
 )
 
 type Account struct {
-	IDAccount   uint      `gorm:"primaryKey" json:"id_account"`
-	Name        string    `json:"name"`
-	Username    string    `json:"username"`
-	Email       string    `json:"email"`
-	Password    string    `json:"password"`
-	PhoneNumber int       `json:"phone_number"`
-	CreatedAt   time.Time `json:"created_at"`
-	DeletedAt   time.Time `json:"deleted_at"`
+	Id              uint      `gorm:"primaryKey" json:"id"`
+	UUID            uuid.UUID `gorm:"type:uuid" json:"uuid" `
+	Email           string    `gorm:"uniqueIndex" json:"email"`
+	Password        string    `json:"password"`
+	IsEmailVerified bool      `json:"is_email_verified"`
+	CreatedAt       time.Time `json:"created_at"`
+	DeletedAt       time.Time `json:"deleted_at"`
 }
 
 type AccountDetails struct {
@@ -23,6 +24,14 @@ type AccountDetails struct {
 	Institution string    `json:"institution"`
 	UpdatedAt   time.Time `json:"updated_at"`
 	DeletedAt   time.Time `json:"deleted_at"`
+}
+
+type EmailVerification struct {
+	Id        int       `gorm:"primaryKey" json:"id"`
+	AccountId int       `json:"account_id"`
+	UUID      uuid.UUID `gorm:"type:uuid" json:"uuid" `
+	CreatedAt time.Time `json:"created_at"`
+	ExpiredAt time.Time `json:"expired_at"`
 }
 
 // Gorm table name settings

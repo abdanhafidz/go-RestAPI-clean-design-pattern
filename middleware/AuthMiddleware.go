@@ -25,7 +25,7 @@ func GenerateToken(user *models.Account) (string, error) {
 
 	// Set claims
 	claims := token.Claims.(jwt.MapClaims)
-	claims["id"] = user.IDAccount
+	claims["id"] = user.Id
 	claims["exp"] = time.Now().Add(time.Hour * 24).Unix() // Token expires in 24 hours
 
 	// Sign the token with the secret key

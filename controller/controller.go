@@ -19,18 +19,33 @@ type (
 	}
 )
 
-func (controller *Controller[T1, T2, T3]) RequestJSON(c *gin.Context) {
+func (controller *Controller[T1, T2, T3]) RequestJSON(c *gin.Context, act func()) {
 	cParam, _ := c.Get("accountData")
 	if cParam != nil {
 		controller.AccountData = cParam.(models.AccountData)
 	}
-	c.ShouldBindJSON(&controller.Request)
+	errBinding := c.ShouldBindJSON(&controller.Request)
+	if errBinding != nil {
+		utils.ResponseFAIL(c, 400, models.Exception{
+			BadRequest: true,
+			Message:    "Invalid Request!, recheck your request, there's must be some problem about required parameter or type parameter",
+		})
+		return
+	} else {
+		act()
+		controller.Response(c)
+	}
 }
 func (controller *Controller[T1, T2, T3]) Response(c *gin.Context) {
 	switch {
 	case controller.Service.Error != nil:
-		utils.ResponseFAIL(c, 500, models.Exception{InternalServerError: true})
+		utils.ResponseFAIL(c, 500, models.Exception{
+			InternalServerError: true,
+			Message:             "Internal Server Error",
+		})
 		utils.LogError(controller.Service.Error)
+	case controller.Service.Exception.DataDuplicate:
+		utils.ResponseFAIL(c, 400, controller.Service.Exception)
 	case controller.Service.Exception.Unauthorized:
 		utils.ResponseFAIL(c, 401, controller.Service.Exception)
 	case controller.Service.Exception.DataNotFound:
