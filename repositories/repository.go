@@ -7,7 +7,7 @@ import (
 
 type Repositories interface {
 	FindAllPaginate()
-	Where()
+	WhereGivenConstructor()
 	Find()
 	Create()
 	Update()

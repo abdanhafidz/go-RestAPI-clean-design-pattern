@@ -1,3 +1,4 @@
 .env
 vendor/
 quzuu-be.exe
+.qodo

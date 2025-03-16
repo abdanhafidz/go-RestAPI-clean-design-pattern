@@ -19,7 +19,7 @@ type (
 	}
 )
 
-func (controller *Controller[T1, T2, T3]) RequestJSON(c *gin.Context, act func()) {
+func (controller *Controller[T1, T2, T3]) RequestJSON(c *gin.Context, action func()) {
 	cParam, _ := c.Get("accountData")
 	if cParam != nil {
 		controller.AccountData = cParam.(models.AccountData)
@@ -32,7 +32,7 @@ func (controller *Controller[T1, T2, T3]) RequestJSON(c *gin.Context, act func()
 		})
 		return
 	} else {
-		act()
+		action()
 		controller.Response(c)
 	}
 }
