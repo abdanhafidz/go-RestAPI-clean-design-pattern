@@ -1,8 +1,6 @@
 package repositories
 
 import (
-	"fmt"
-
 	"godp.abdanhafidz.com/models"
 )
 
@@ -38,7 +36,6 @@ func GetAccountDetailsbyId(account_id uint) Repository[models.AccountDetails, mo
 	repo := Construct[models.AccountDetails, models.AccountDetails](
 		models.AccountDetails{AccountID: account_id},
 	)
-	fmt.Println("Account ID:", repo.Constructor.AccountID)
 	repo.Transactions(
 		WhereGivenConstructor[models.AccountDetails, models.AccountDetails],
 		Find[models.AccountDetails, models.AccountDetails],
@@ -56,13 +53,10 @@ func CreateAccountDetails(accountDetails models.AccountDetails) Repository[model
 	repo := Construct[models.AccountDetails, models.AccountDetails](
 		accountDetails,
 	)
-	fmt.Println(accountDetails)
-	fmt.Println("Account ID : ", accountDetails.AccountID)
 	Create(repo)
 	return *repo
 }
 func UpdateAccountDetails(accountDetails models.AccountDetails) Repository[models.AccountDetails, models.AccountDetails] {
-	fmt.Println("Account ID : ", accountDetails.AccountID)
 	repo := Construct[models.AccountDetails, models.AccountDetails](
 		models.AccountDetails{AccountID: accountDetails.AccountID},
 	)

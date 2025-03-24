@@ -2,7 +2,6 @@ package services
 
 import (
 	"errors"
-	"fmt"
 
 	"godp.abdanhafidz.com/models"
 	"godp.abdanhafidz.com/repositories"
@@ -52,8 +51,6 @@ func (s *AuthenticationService) Update(oldPassword string, newPassword string) {
 		s.Exception.Message = "there is no account with given credentials!"
 		return
 	}
-	fmt.Println("Result Password", accountData.Result.Password)
-	fmt.Println("old Password given", oldPassword)
 	if VerifyPassword(accountData.Result.Password, oldPassword) != nil {
 		s.Exception.Unauthorized = true
 		s.Exception.Message = "incorrect old password!"
