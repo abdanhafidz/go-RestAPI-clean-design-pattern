@@ -4,9 +4,8 @@ import (
 	"errors"
 
 	uuid "github.com/satori/go.uuid"
-	"go-dp.abdanhafidz.com/middleware"
-	"go-dp.abdanhafidz.com/models"
-	"go-dp.abdanhafidz.com/repositories"
+	"godp.abdanhafidz.com/models"
+	"godp.abdanhafidz.com/repositories"
 	"gorm.io/gorm"
 )
 
@@ -20,7 +19,7 @@ func (s *RegisterService) Create() {
 		s.Exception.Message = "Password must have at least 8 characters!"
 		return
 	}
-	hashed_password, err_hash := middleware.HashPassword(s.Constructor.Password)
+	hashed_password, err_hash := HashPassword(s.Constructor.Password)
 	s.Error = err_hash
 	s.Constructor.Password = hashed_password
 	s.Constructor.UUID = uuid.NewV4()
@@ -32,6 +31,13 @@ func (s *RegisterService) Create() {
 	} else if errors.Is(accountCreated.RowsError, gorm.ErrModelAccessibleFieldsRequired) || errors.Is(accountCreated.RowsError, gorm.ErrInvalidData) || errors.Is(accountCreated.RowsError, gorm.ErrInvalidValue) || errors.Is(accountCreated.RowsError, gorm.ErrInvalidField) {
 		s.Exception.BadRequest = true
 		s.Exception.Message = "Bad request!"
+		return
+	}
+	userProfile := UserProfileService{}
+	userProfile.Constructor.AccountID = accountCreated.Result.Id
+	userProfile.Create()
+	if userProfile.Error != nil {
+		s.Error = userProfile.Error
 		return
 	}
 	s.Error = accountCreated.RowsError

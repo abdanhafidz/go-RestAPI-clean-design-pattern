@@ -10,24 +10,8 @@ import (
 	"gorm.io/gorm/logger"
 
 	"github.com/joho/godotenv"
-	"go-dp.abdanhafidz.com/models"
+	"godp.abdanhafidz.com/models"
 )
-
-func AutoMigrateAll(db *gorm.DB) {
-	// Enable logger to see SQL logs
-	db.Logger.LogMode(logger.Info)
-
-	// Auto-migrate all models
-	err := db.AutoMigrate(
-		&models.Account{},
-		&models.AccountDetails{},
-	)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	fmt.Println("Migration completed successfully.")
-}
 
 var DB *gorm.DB
 var err error
@@ -57,4 +41,25 @@ func init() {
 
 	// Call AutoMigrateAll to perform auto-migration
 	AutoMigrateAll(DB)
+}
+
+func AutoMigrateAll(db *gorm.DB) {
+	// Enable logger to see SQL logs
+	db.Logger.LogMode(logger.Info)
+
+	// Auto-migrate all models
+	err := db.AutoMigrate(
+		&models.Account{},
+		&models.AccountDetails{},
+		&models.EmailVerification{},
+		&models.ExternalAuth{},
+		&models.FCM{},
+		&models.ForgotPassword{},
+	)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Migration completed successfully.")
 }

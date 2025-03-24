@@ -2,9 +2,9 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-dp.abdanhafidz.com/models"
-	"go-dp.abdanhafidz.com/services"
-	"go-dp.abdanhafidz.com/utils"
+	"godp.abdanhafidz.com/models"
+	"godp.abdanhafidz.com/services"
+	"godp.abdanhafidz.com/utils"
 )
 
 type (
@@ -19,7 +19,14 @@ type (
 	}
 )
 
-func (controller *Controller[T1, T2, T3]) RequestJSON(c *gin.Context, action func()) {
+func (controller *Controller[T1, T2, T3]) HeaderParse(c *gin.Context, act func()) {
+	cParam, _ := c.Get("accountData")
+	if cParam != nil {
+		controller.AccountData = cParam.(models.AccountData)
+	}
+	act()
+}
+func (controller *Controller[T1, T2, T3]) RequestJSON(c *gin.Context, act func()) {
 	cParam, _ := c.Get("accountData")
 	if cParam != nil {
 		controller.AccountData = cParam.(models.AccountData)
@@ -32,7 +39,7 @@ func (controller *Controller[T1, T2, T3]) RequestJSON(c *gin.Context, action fun
 		})
 		return
 	} else {
-		action()
+		act()
 		controller.Response(c)
 	}
 }

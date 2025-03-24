@@ -1,14 +1,15 @@
-package controller
+package user
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-dp.abdanhafidz.com/models"
-	"go-dp.abdanhafidz.com/services"
+	"godp.abdanhafidz.com/controller"
+	"godp.abdanhafidz.com/models"
+	"godp.abdanhafidz.com/services"
 )
 
-func RegisterController(c *gin.Context) {
+func Register(c *gin.Context) {
 	register := services.RegisterService{}
-	registerController := Controller[models.RegisterRequest, models.Account, models.Account]{
+	registerController := controller.Controller[models.RegisterRequest, models.Account, models.Account]{
 		Service: &register.Service,
 	}
 	registerController.RequestJSON(c, func() {

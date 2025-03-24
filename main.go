@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 
-	"go-dp.abdanhafidz.com/config"
-	"go-dp.abdanhafidz.com/router"
+	"godp.abdanhafidz.com/config"
+	"godp.abdanhafidz.com/router"
 )
 
 func main() {

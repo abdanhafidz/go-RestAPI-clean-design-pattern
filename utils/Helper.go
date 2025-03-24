@@ -2,7 +2,7 @@ package utils
 
 import (
 	"github.com/gin-gonic/gin"
-	"go-dp.abdanhafidz.com/models"
+	"godp.abdanhafidz.com/models"
 )
 
 func GetAccount(c *gin.Context) models.AccountData {

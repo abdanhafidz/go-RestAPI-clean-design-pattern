@@ -1,5 +1,5 @@
-# Gunakan image dasar Golang versi 1.21.6
-FROM golang:1.21.6
+# Gunakan image dasar Golang versi 1.24.1
+FROM golang:1.24.1
 
 # Set working directory
 WORKDIR /app
@@ -14,15 +14,15 @@ RUN go mod download
 COPY . .
 
 # Buat file .env dengan variabel environment yang dibutuhkan
-RUN echo "DB_HOST={your env}" >> .env && \
-    echo "DB_USER={your env}" >> .env && \
-    echo "DB_PASSWORD={your env}" >> .env && \
-    echo "DB_PORT={your env}" >> .env && \
-    echo "DB_NAME={your env}" >> .env && \
-    echo "HOST_ADDRESS = {your env}" >> .env && \
-    echo "HOST_PORT = {your env}" >> .env && \
-    echo "SALT={your env}" >> .env && \
-    echo "LOG_PATH = {your env}" >> .env
+RUN echo "DB_HOST=aws-0-ap-southeast-1.pooler.supabase.com" >> .env && \
+    echo "DB_USER=postgres.rdscploxoikqsevhduii" >> .env && \
+    echo "DB_PASSWORD=Qobiltu12233334444" >> .env && \
+    echo "DB_PORT=5432" >> .env && \
+    echo "DB_NAME=postgres" >> .env && \
+    echo "HOST_ADDRESS = 0.0.0.0" >> .env && \
+    echo "HOST_PORT = 7860" >> .env && \
+    echo "SALT=NZNZtY7dNPz8l0dWINJZLKafWaJrql1s" >> .env && \
+    echo "LOG_PATH = logs" >> .env
 # Build aplikasi
 RUN go build -o main .
 

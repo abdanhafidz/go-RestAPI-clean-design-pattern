@@ -5,8 +5,8 @@ import (
 	"reflect"
 
 	"github.com/gin-gonic/gin"
-	"go-dp.abdanhafidz.com/models"
-	"go-dp.abdanhafidz.com/services"
+	"godp.abdanhafidz.com/models"
+	"godp.abdanhafidz.com/services"
 )
 
 func ResponseOK(c *gin.Context, data any) {

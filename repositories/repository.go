@@ -1,13 +1,13 @@
 package repositories
 
 import (
-	"go-dp.abdanhafidz.com/config"
+	"godp.abdanhafidz.com/config"
 	"gorm.io/gorm"
 )
 
 type Repositories interface {
 	FindAllPaginate()
-	WhereGivenConstructor()
+	Where()
 	Find()
 	Create()
 	Update()
@@ -93,6 +93,7 @@ func Update[T1 any](repo *Repository[T1, T1]) *gorm.DB {
 	repo.RowsCount = int(tx.RowsAffected)
 	repo.NoRecord = repo.RowsCount == 0
 	repo.RowsError = tx.Error
+	repo.Result = repo.Constructor
 	return tx
 }
 

@@ -1,6 +1,10 @@
 package services
 
-import "go-dp.abdanhafidz.com/models"
+import (
+	"time"
+
+	"godp.abdanhafidz.com/models"
+)
 
 type (
 	Services interface {
@@ -28,4 +32,8 @@ func Construct[TConstructor any, TResult any](constructor ...TConstructor) *Serv
 	return &Service[TConstructor, TResult]{
 		Constructor: constructor[0],
 	}
+}
+
+func CalculateDueTime(duration time.Duration) time.Time {
+	return time.Now().Add(duration)
 }
