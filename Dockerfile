@@ -16,7 +16,7 @@ COPY . .
 # Buat file .env dengan variabel environment yang dibutuhkan
 RUN echo "DB_HOST=aws-0-ap-southeast-1.pooler.supabase.com" >> .env && \
     echo "DB_USER=postgres.rdscploxoikqsevhduii" >> .env && \
-    echo "DB_PASSWORD=Qobiltu12233334444" >> .env && \
+    echo "DB_PASSWORD=Blablablablebleblublu1234" >> .env && \
     echo "DB_PORT=5432" >> .env && \
     echo "DB_NAME=postgres" >> .env && \
     echo "HOST_ADDRESS = 0.0.0.0" >> .env && \

@@ -1,68 +1,113 @@
 package services
 
 import (
+	"context"
 	"errors"
 
 	"godp.abdanhafidz.com/models"
 	"godp.abdanhafidz.com/repositories"
+	"gorm.io/gorm"
 )
 
-type AuthenticationService struct {
-	Service[models.Account, models.AuthenticatedUser]
+type AuthenticationService interface {
+	Service
+	Authenticate(ctx context.Context, email string, password string) (res models.AuthenticatedUser)
+	Create(ctx context.Context, email string, password string) (res models.AuthenticatedUser)
 }
 
-func (s *AuthenticationService) Authenticate() {
-	accountData := repositories.GetAccountbyEmail(s.Constructor.Email)
-	if accountData.NoRecord {
-		s.Exception.DataNotFound = true
-		s.Exception.Message = "there is no account with given credentials!"
-		return
-	}
-	if VerifyPassword(accountData.Result.Password, s.Constructor.Password) != nil {
-		s.Exception.Unauthorized = true
-		s.Exception.Message = "incorrect password!"
+type authenticationService struct {
+	*service[repositories.AccountRepository]
+	userProfileService UserProfileService
+}
+
+func NewAuthenticationService(accountRepository repositories.AccountRepository, userProfileService UserProfileService) AuthenticationService {
+	service := authenticationService{}
+	service.repository = accountRepository
+	service.userProfileService = userProfileService
+	return &service
+}
+func (s *authenticationService) Authenticate(ctx context.Context, email string, password string) (res models.AuthenticatedUser) {
+	account := s.repository.GetAccountByEmail(ctx, email)
+
+	if s.ThrowsRepoException() {
 		return
 	}
 
-	token, err_tok := GenerateToken(&accountData.Result)
+	if VerifyPassword(account.Password, password) != nil {
+		s.ThrowsException(&s.exception.Unauthorized, "There is no account with given credentials!")
+		return
+	}
+
+	token, err_tok := GenerateToken(&account)
 
 	if err_tok != nil {
-		s.Error = errors.Join(s.Error, err_tok)
+		s.errors = errors.Join(s.errors, err_tok)
 	}
-
-	accountData.Result.Password = "SECRET"
-	s.Result = models.AuthenticatedUser{
-		Account: accountData.Result,
+	return models.AuthenticatedUser{
+		Account: account,
 		Token:   token,
 	}
-	s.Error = accountData.RowsError
+
 }
 
-func (s *AuthenticationService) Update(oldPassword string, newPassword string) {
-	if len(newPassword) < 8 {
-		s.Exception.InvalidPasswordLength = true
-		s.Exception.Message = "Password must have at least 8 characters!"
-		return
+func validPassword(s *authenticationService, password string) bool {
+	if len(password) < 8 {
+		s.ThrowsException(&s.exception.BadRequest, "Your password is less than 8 characters!")
+		return false
 	}
-	accountData := repositories.GetAccountbyId(s.Constructor.Id)
+	return true
+}
+func (s *authenticationService) Create(ctx context.Context, email string, password string) (res models.AuthenticatedUser) {
 
-	if accountData.NoRecord {
-		s.Exception.DataNotFound = true
-		s.Exception.Message = "there is no account with given credentials!"
+	if !validPassword(s, password) {
 		return
 	}
-	if VerifyPassword(accountData.Result.Password, oldPassword) != nil {
-		s.Exception.Unauthorized = true
-		s.Exception.Message = "incorrect old password!"
+
+	hashed_password, err_hash := HashPassword(password)
+
+	s.errors = err_hash
+
+	account := s.repository.CreateAccount(ctx, email, hashed_password)
+
+	if errors.Is(s.repository.RowsError(), gorm.ErrDuplicatedKey) {
+		s.exception.DataDuplicate = true
+		s.exception.Message = "Account with email " + email + " already exists!"
+		return
+	} else if errors.Is(s.repository.RowsError(), gorm.ErrModelAccessibleFieldsRequired) ||
+		errors.Is(s.repository.RowsError(), gorm.ErrInvalidData) ||
+		errors.Is(s.repository.RowsError(), gorm.ErrInvalidValue) ||
+		errors.Is(s.repository.RowsError(), gorm.ErrInvalidField) {
+		s.exception.BadRequest = true
+		s.exception.Message = "Bad request!"
 		return
 	}
-	accountData.Result.Password = newPassword
-	changePassword := repositories.UpdateAccount(accountData.Result)
-	changePassword.Result.Password = "SECRET"
-	s.Result = models.AuthenticatedUser{
-		Account: changePassword.Result,
-	}
-	s.Error = changePassword.RowsError
+
+	s.userProfileService.Create(ctx, account.Id)
+	s.Authenticate(ctx, email, password)
+	res.Account = account
+	return
 }
 
-// LoginHandler handles user login
+// func (s *AuthenticationService) ChangePassword(ctx context.Context, oldPassword string, newPassword string) {
+// 	if len(newPassword) < 8 {
+// 		s.exception.InvalidPasswordLength = true
+// 		s.exception.Message = "Password must have at least 8 characters!"
+// 		return
+// 	}
+// 	accountData := repositories.GetAccountbyId(s.constructor.Id)
+
+// 	// if s.Repoexception(accountData) {
+// 	// 	return
+// 	// }
+// 	if VerifyPassword(accountData.Result.Password, oldPassword) != nil {
+// 		s.ThrowsException(&s.exception.Unauthorized, "incorrect old password!")
+// 		return
+// 	}
+// 	accountData.Result.Password = newPassword
+// 	changePassword := repositories.UpdateAccount(accountData.Result)
+// 	changePassword.Result.Password = "SECRET"
+// 	s.result = models.AuthenticatedUser{
+// 		Account: changePassword.Result,
+// 	}
+// 	s.errors = changePassword.Rowserror
+// }

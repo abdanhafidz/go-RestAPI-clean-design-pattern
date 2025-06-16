@@ -8,58 +8,56 @@ import (
 )
 
 type (
-	Controllers interface {
-		RequestJSON(c *gin.Context)
-		Response(c *gin.Context)
+	Controller interface {
+		HeaderParse(ctx *gin.Context)
+		RequestJSON(ctx *gin.Context, request any)
+		Response(ctx *gin.Context, res any)
 	}
-	Controller[T1 any, T2 any, T3 any] struct {
-		AccountData models.AccountData
-		Request     T1
-		Service     *services.Service[T2, T3]
+	controller[TService services.Service] struct {
+		accountData models.AccountData
+		service     TService
 	}
 )
 
-func (controller *Controller[T1, T2, T3]) HeaderParse(c *gin.Context, act func()) {
-	cParam, _ := c.Get("accountData")
+func (c *controller[TService]) HeaderParse(ctx *gin.Context) {
+	cParam, _ := ctx.Get("account_data")
 	if cParam != nil {
-		controller.AccountData = cParam.(models.AccountData)
+		c.accountData = cParam.(models.AccountData)
 	}
-	act()
 }
-func (controller *Controller[T1, T2, T3]) RequestJSON(c *gin.Context, act func()) {
-	cParam, _ := c.Get("accountData")
+
+func (c *controller[TService]) RequestJSON(ctx *gin.Context, request any) {
+	cParam, _ := ctx.Get("AccountData")
 	if cParam != nil {
-		controller.AccountData = cParam.(models.AccountData)
+		c.accountData = cParam.(models.AccountData)
 	}
-	errBinding := c.ShouldBindJSON(&controller.Request)
+
+	errBinding := ctx.ShouldBindJSON(&request)
 	if errBinding != nil {
-		utils.ResponseFAIL(c, 400, models.Exception{
+		utils.ResponseFAIL(ctx, 400, models.Exception{
 			BadRequest: true,
 			Message:    "Invalid Request!, recheck your request, there's must be some problem about required parameter or type parameter",
 		})
 		return
-	} else {
-		act()
-		controller.Response(c)
 	}
 }
-func (controller *Controller[T1, T2, T3]) Response(c *gin.Context) {
+func (c *controller[TService]) Response(ctx *gin.Context, res any) {
 	switch {
-	case controller.Service.Error != nil:
-		utils.ResponseFAIL(c, 500, models.Exception{
+	case c.service.Error() != nil:
+		utils.ResponseFAIL(ctx, 500, models.Exception{
 			InternalServerError: true,
 			Message:             "Internal Server Error",
 		})
-		utils.LogError(controller.Service.Error)
-	case controller.Service.Exception.DataDuplicate:
-		utils.ResponseFAIL(c, 400, controller.Service.Exception)
-	case controller.Service.Exception.Unauthorized:
-		utils.ResponseFAIL(c, 401, controller.Service.Exception)
-	case controller.Service.Exception.DataNotFound:
-		utils.ResponseFAIL(c, 404, controller.Service.Exception)
-	case controller.Service.Exception.Message != "":
-		utils.ResponseFAIL(c, 400, controller.Service.Exception)
+		utils.LogError(c.service.Error())
+	case c.service.Exception().DataDuplicate:
+		utils.ResponseFAIL(ctx, 400, c.service.Exception())
+	case c.service.Exception().Unauthorized:
+		utils.ResponseFAIL(ctx, 401, c.service.Exception())
+	case c.service.Exception().DataNotFound:
+		utils.ResponseFAIL(ctx, 404, c.service.Exception())
+	case c.service.Exception().Message != "":
+		utils.ResponseFAIL(ctx, 400, c.service.Exception())
 	default:
-		utils.ResponseOK(c, controller.Service.Result)
+		utils.ResponseOK(ctx, res)
 	}
 }

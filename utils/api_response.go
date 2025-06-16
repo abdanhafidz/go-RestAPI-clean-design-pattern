@@ -33,20 +33,20 @@ func ResponseFAIL(c *gin.Context, status int, exception models.Exception) {
 	return
 }
 
-func SendResponse(c *gin.Context, data services.Service[any, any]) {
-	if reflect.ValueOf(data.Exception).IsNil() {
+func SendResponse(c *gin.Context, data services.Service) {
+	if reflect.ValueOf(data.Exception()).IsNil() {
 		ResponseOK(c, data)
 	} else {
-		if data.Exception.Unauthorized {
-			ResponseFAIL(c, 401, data.Exception)
-		} else if data.Exception.BadRequest {
-			ResponseFAIL(c, 400, data.Exception)
-		} else if data.Exception.DataNotFound {
-			ResponseFAIL(c, 404, data.Exception)
-		} else if data.Exception.InternalServerError {
-			ResponseFAIL(c, 500, data.Exception)
+		if data.Exception().Unauthorized {
+			ResponseFAIL(c, 401, data.Exception())
+		} else if data.Exception().BadRequest {
+			ResponseFAIL(c, 400, data.Exception())
+		} else if data.Exception().DataNotFound {
+			ResponseFAIL(c, 404, data.Exception())
+		} else if data.Exception().InternalServerError {
+			ResponseFAIL(c, 500, data.Exception())
 		} else {
-			ResponseFAIL(c, 403, data.Exception)
+			ResponseFAIL(c, 403, data.Exception())
 		}
 	}
 }

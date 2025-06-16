@@ -13,7 +13,3 @@ type ErrorResponse struct {
 	Errors   Exception `json:"errors"`
 	MetaData any       `json:"meta_data"`
 }
-type AuthenticatedUser struct {
-	Account Account `json:"account"`
-	Token   string  `json:"token"`
-}

@@ -10,7 +10,7 @@ type Account struct {
 	Id                uint       `gorm:"primaryKey" json:"id"`
 	UUID              uuid.UUID  `gorm:"type:uuid" json:"uuid" `
 	Email             string     `gorm:"uniqueIndex" json:"email"`
-	Password          string     `json:"password"`
+	Password          string     `json:"-"`
 	IsEmailVerified   bool       `json:"is_email_verified"`
 	IsDetailCompleted bool       `json:"is_detail_completed"`
 	CreatedAt         time.Time  `json:"created_at"`
