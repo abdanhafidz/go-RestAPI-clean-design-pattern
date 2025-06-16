@@ -42,7 +42,6 @@ func (r *accountDetailRepository) UpdateAccountDetail(ctx context.Context, accou
 }
 
 func (r *accountDetailRepository) GetByAccountId(ctx context.Context, account_id uint) (res models.AccountDetails) {
-	r.Lock()
 	r.entity.AccountID = account_id
 	r.Where(ctx)
 	return r.entity
