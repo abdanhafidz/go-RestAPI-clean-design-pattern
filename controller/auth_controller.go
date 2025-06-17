@@ -2,8 +2,8 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"godp.abdanhafidz.com/models"
-	"godp.abdanhafidz.com/services"
+	models "godp.abdanhafidz.com/models"
+	services "godp.abdanhafidz.com/services"
 )
 
 type AuthController interface {
@@ -18,9 +18,11 @@ type authController struct {
 }
 
 func NewAuthController(authenticationService services.AuthenticationService) AuthController {
-	controller := authController{}
-	controller.service = authenticationService
-	return &controller
+	return &authController{
+		controller: &controller[services.AuthenticationService]{
+			service: authenticationService,
+		},
+	}
 }
 func (c *authController) Login(ctx *gin.Context) {
 	var loginRequest models.LoginRequest

@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"godp.abdanhafidz.com/models"
-	"godp.abdanhafidz.com/repositories"
+	models "godp.abdanhafidz.com/models"
+	repositories "godp.abdanhafidz.com/repositories"
 	"gorm.io/gorm"
 )
 
@@ -21,10 +21,12 @@ type authenticationService struct {
 }
 
 func NewAuthenticationService(accountRepository repositories.AccountRepository, userProfileService UserProfileService) AuthenticationService {
-	service := authenticationService{}
-	service.repository = accountRepository
-	service.userProfileService = userProfileService
-	return &service
+	return &authenticationService{
+		service: &service[repositories.AccountRepository]{
+			repository: accountRepository,
+		},
+		userProfileService: userProfileService,
+	}
 }
 func (s *authenticationService) Authenticate(ctx context.Context, email string, password string) (res models.AuthenticatedUser) {
 	account := s.repository.GetAccountByEmail(ctx, email)

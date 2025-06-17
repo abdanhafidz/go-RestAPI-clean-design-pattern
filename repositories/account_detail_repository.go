@@ -3,7 +3,7 @@ package repositories
 import (
 	"context"
 
-	"godp.abdanhafidz.com/models"
+	models "godp.abdanhafidz.com/models"
 )
 
 type AccountDetailRepository interface {
@@ -18,9 +18,11 @@ type accountDetailRepository struct {
 }
 
 func NewAccountDetailRepository() AccountDetailRepository {
-	repo := accountDetailRepository{}
-	repo.entity = models.AccountDetails{}
-	return &repo
+	return &accountDetailRepository{
+		repository: &repository[models.AccountDetails]{
+			entity: models.AccountDetails{},
+		},
+	}
 }
 func (r *accountDetailRepository) CreateAccountDetail(ctx context.Context, account_id uint) (res models.AccountDetails) {
 	r.Lock()

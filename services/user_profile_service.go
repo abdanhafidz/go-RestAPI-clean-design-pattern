@@ -3,8 +3,8 @@ package services
 import (
 	"context"
 
-	"godp.abdanhafidz.com/models"
-	"godp.abdanhafidz.com/repositories"
+	models "godp.abdanhafidz.com/models"
+	repositories "godp.abdanhafidz.com/repositories"
 )
 
 type UserProfileService interface {
@@ -19,9 +19,11 @@ type userProfileService struct {
 }
 
 func NewUserProfileService(accountDetailRepository repositories.AccountDetailRepository) UserProfileService {
-	service := userProfileService{}
-	service.repository = accountDetailRepository
-	return &service
+	return &userProfileService{
+		service: &service[repositories.AccountDetailRepository]{
+			repository: accountDetailRepository,
+		},
+	}
 }
 func (s *userProfileService) Create(ctx context.Context, account_id uint) (res models.AccountDetails) {
 	accountDetail := s.repository.CreateAccountDetail(ctx, account_id)

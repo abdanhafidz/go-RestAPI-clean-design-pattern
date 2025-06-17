@@ -2,8 +2,8 @@ package controller
 
 import (
 	"github.com/gin-gonic/gin"
-	"godp.abdanhafidz.com/models"
-	"godp.abdanhafidz.com/services"
+	models "godp.abdanhafidz.com/models"
+	services "godp.abdanhafidz.com/services"
 )
 
 type UserController interface {
@@ -16,9 +16,11 @@ type userController struct {
 }
 
 func NewUserController(userProfileService services.UserProfileService) UserController {
-	controller := userController{}
-	controller.service = userProfileService
-	return &controller
+	return &userController{
+		controller: &controller[services.UserProfileService]{
+			service: userProfileService,
+		},
+	}
 }
 func (c *userController) GetProfile(ctx *gin.Context) {
 	c.HeaderParse(ctx)
